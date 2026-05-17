@@ -12,6 +12,8 @@ jobs:
 
       - name: Check statuses
         shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           # See https://cli.github.com/manual/gh_pr_checks
           $statusesJson = gh pr checks ${{ github.event.pull_request.number }} --json bucket,name
