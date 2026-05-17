@@ -6,7 +6,7 @@ $commit = $args[1]
 $self = $args[2] # Should be the name of the workflow to ignore
 $reportStatus = $args[3] # Whether to report the status check to the specified commit
 
-$ignoredStatuses = @("PR Status Check")
+$ignoredStatuses = @()
 if ($self) {
   $ignoredStatuses += $self
 }
