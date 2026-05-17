@@ -18,7 +18,7 @@ jobs:
           $statuses = $statusesJson | ConvertFrom-Json
           
           $ignoredStatuses = @(
-              "PR Merge Gatekeeper, # Should always ignore self
+              "PR Merge Gatekeeper", # Should always ignore self
           )
           
           # Must be in the status list
