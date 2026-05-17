@@ -14,11 +14,11 @@ jobs:
         shell: pwsh
         run: |
           # See https://cli.github.com/manual/gh_pr_checks
-          $statusesJson = gh pr checks ${{ github.event.pull_request.number }}" --json bucket,name
+          $statusesJson = gh pr checks ${{ github.event.pull_request.number }} --json bucket,name
           $statuses = $statusesJson | ConvertFrom-Json
           
           $ignoredStatuses = @(
-              "PR Merge Gatekeeper", # Should always ignore self
+              "PR Merge Gatekeeper" # Should always ignore self
           )
           
           # Must be in the status list
@@ -26,9 +26,9 @@ jobs:
           $requiredStatuses = @("Does Not Exist")
           
           # Must pass or skip if present
-          foreach ($entry in $entries) {
-              if (!($entry.bucket -in @("pass", "skipping"))) {
-                  WriteHost "Status check has not passed or has not been skipped. Name: $($entry.name) Current status: $($entry.bucket)"
+          foreach ($status in $statuses) {
+              if (!($status.bucket -in @("pass", "skipping"))) {
+                  WriteHost "Status check has not passed or has not been skipped. Name: $($status.name) Current status: $($status.bucket)"
                   exit 1
               }
           }
@@ -37,7 +37,7 @@ jobs:
           $presentStatuses = $statuses.name
           foreach ($requiredStatus in $requiredStatuses) {
               if (!($requiredStatus -in $presentStatuses)) {
-                  WriteHost "Required status check is not present. Name: $($requiredStatus)"
+                  Write-Host "Required status check is not present. Name: $($requiredStatus)"
                   exit 1
               }
           }
