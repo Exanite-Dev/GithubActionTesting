@@ -1,0 +1,70 @@
+name: PR Merge Gatekeeper
+
+on:
+  check_run:
+    types:
+      - completed
+  status:
+
+jobs:
+  check:
+    name: PR Merge Gatekeeper
+    runs-on: ubuntu-24.04
+
+    steps:
+
+      - name: Checkout repo
+        uses: actions/checkout@v6.0.2
+
+      - name: Check statuses
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Config
+          $ignoredStatuses = @(
+              "PR Merge Gatekeeper" # Should always ignore self
+          )
+          
+          # Must be in the status list
+          # This means these cannot be skipped
+          $requiredStatuses = @()
+          
+          # Github splits statuses into two endpoints: one for workflows and one for externally reported statuses
+          # https://docs.github.com/en/rest/checks/runs
+          # https://docs.github.com/en/rest/commits/statuses
+        
+          # Merged data
+          # Two properties: name and state
+          $statuses = @()
+          
+          $externalStatuses = gh api repos/${{ github.repository }}/commits/${{ github.event.workflow_run.head_sha }}/status | ConvertFrom-Json          
+          foreach ($externalStatus in $externalStatuses) {
+              $statuses += @{ name = $externalStatus.context; state = $externalStatus.state }
+          }
+          
+          $workflowStatuses = gh api repos/${{ github.repository }}/commits/${{ github.event.workflow_run.head_sha }}/check-runs | ConvertFrom-Json
+          foreach ($workflowStatus in $workflowStatuses) {
+              $statuses += @{ name = $workflowStatus.name; state = $workflowStatus.conclusion }
+          }
+          
+          # Must succeed or skip if present
+          foreach ($status in $statuses) {
+              if ($status.name -in $ignoredStatuses) {
+                  continue
+              }
+          
+              if (!($status.bucket -in @("success", "skipped"))) {
+                  Write-Host "Status check has not passed or has not been skipped.`nName: $($status.name)`nCurrent status: $($status.bucket)"
+                  exit 1
+              }
+          }
+          
+          # Ensure required are present
+          $presentStatuses = $statuses.name
+          foreach ($requiredStatus in $requiredStatuses) {
+              if (!($requiredStatus -in $presentStatuses)) {
+                  Write-Host "Required status check is not present.`nName: $($requiredStatus)"
+                  exit 1
+              }
+          }

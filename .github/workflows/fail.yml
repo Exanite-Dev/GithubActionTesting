@@ -5,7 +5,7 @@ on:
   push:
 
 jobs:
-  nuget:
+  check:
     name: Check
     runs-on: ubuntu-24.04
 
