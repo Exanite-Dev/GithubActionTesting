@@ -6,7 +6,7 @@ on:
       - Check
     types:
       - completed
-#  status:
+  status:
 
 jobs:
   check:
