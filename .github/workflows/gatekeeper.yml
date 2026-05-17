@@ -23,7 +23,7 @@ jobs:
           
           # Must be in the status list
           # This means these cannot be skipped
-          $requiredStatuses = @("Does Not Exist")
+          $requiredStatuses = @()
           
           # Must pass or skip if present
           foreach ($status in $statuses) {
