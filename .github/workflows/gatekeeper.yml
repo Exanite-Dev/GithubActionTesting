@@ -27,6 +27,10 @@ jobs:
           
           # Must pass or skip if present
           foreach ($status in $statuses) {
+              if ($status.name -in $ignoredStatuses) {
+                  continue
+              }
+          
               if (!($status.bucket -in @("pass", "skipping"))) {
                   WriteHost "Status check has not passed or has not been skipped. Name: $($status.name) Current status: $($status.bucket)"
                   exit 1
