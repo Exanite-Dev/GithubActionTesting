@@ -37,7 +37,7 @@ jobs:
               }
           
               if (!($status.bucket -in @("pass", "skipping"))) {
-                  WriteHost "Status check has not passed or has not been skipped. Name: $($status.name) Current status: $($status.bucket)"
+                  Write-Host "Status check has not passed or has not been skipped. Name: $($status.name) Current status: $($status.bucket)"
                   exit 1
               }
           }
