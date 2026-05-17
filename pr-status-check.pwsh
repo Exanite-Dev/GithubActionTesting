@@ -4,6 +4,7 @@
 $repo = $args[0]
 $commit = $args[1]
 $self = $args[2] # Should be the name of the workflow to ignore
+$reportStatus = $args[3] # Whether to report the status check to the specified commit
 
 $ignoredStatuses = @("PR Status Check")
 if ($self) {
@@ -46,7 +47,18 @@ foreach ($status in $statuses) {
     }
 
     if (!($status.state -in @("success", "skipped"))) {
-        Write-Host "Status check has not passed or has not been skipped.`nName: $($status.name)`nCurrent status: $($status.state)"
+        $message = "Status check has not passed or has not been skipped. Name: $($status.name). Current status: $($status.state)"
+        if ($reportStatus) {
+            gh api `
+                --method POST `
+                -H "Accept: application/vnd.github+json" `
+                /repos/$repo/statuses/$commit `
+                -f state="failure" `
+                -f description=$message `
+                -f context=$self
+        }
+
+        Write-Host $message
         exit 1
     }
 }
@@ -55,7 +67,29 @@ foreach ($status in $statuses) {
 $presentStatuses = $statuses.name
 foreach ($requiredStatus in $requiredStatuses) {
     if (!($requiredStatus -in $presentStatuses)) {
-        Write-Host "Required status check is not present.`nName: $($requiredStatus)"
+        $message = "Required status check is not present. Name: $($requiredStatus)"
+        if ($reportStatus) {
+            gh api `
+                --method POST `
+                -H "Accept: application/vnd.github+json" `
+                /repos/$repo/statuses/$commit `
+                -f state="failure" `
+                -f description=$message `
+                -f context=$self
+        }
+
+        Write-Host $message
         exit 1
     }
+}
+
+$message = "All checks passed"
+if ($reportStatus) {
+    gh api `
+        --method POST `
+        -H "Accept: application/vnd.github+json" `
+        /repos/$repo/statuses/$commit `
+        -f state="success" `
+        -f description=$message `
+        -f context=$self
 }
