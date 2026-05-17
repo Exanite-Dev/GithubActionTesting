@@ -12,6 +12,8 @@ jobs:
   check:
     name: PR Status Check
     runs-on: ubuntu-24.04
+    permissions:
+      statuses: write
 
     if: github.event.context != github.workflow
 
