@@ -1,0 +1,24 @@
+name: PR Status Check
+
+on:
+  workflow_run:
+    workflows:
+      - Check
+    types:
+      - completed
+  status:
+
+jobs:
+  check:
+    name: PR Status Check
+    runs-on: ubuntu-24.04
+
+    steps:
+
+      - name: Checkout repo
+        uses: actions/checkout@v6.0.2
+
+      - name: Check statuses
+        run: ./pr-status-check.pwsh ${{ github.repository }} ${{ github.event.workflow_run.head_sha }} ${{ github.workflow }}
+        env:
+          GH_TOKEN: ${{ github.token }}

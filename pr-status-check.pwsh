@@ -1,0 +1,61 @@
+#!/usr/bin/env pwsh
+
+# Config
+$repo = $args[0]
+$commit = $args[1]
+$self = $args[2] # Should be the name of the workflow to ignore
+
+$ignoredStatuses = @("PR Status Check")
+if ($self) {
+  $ignoredStatuses += $self
+}
+
+# Must be in the status list
+# This means these cannot be skipped
+$requiredStatuses = @()
+
+# Github splits statuses into two endpoints: one for workflows and one for externally reported statuses
+# https://docs.github.com/en/rest/checks/runs
+# https://docs.github.com/en/rest/commits/statuses
+
+# Merged data
+# Two properties: name and state
+$statuses = @()
+
+$externalStatuses = gh api repos/$repo/commits/$commit/status | ConvertFrom-Json
+foreach ($externalStatus in $externalStatuses.statuses) {
+    $status = @{ name = $externalStatus.context; state = $externalStatus.state }
+    $statuses += $status
+}
+
+$workflowStatuses = gh api repos/$repo/commits/$commit/check-runs | ConvertFrom-Json
+foreach ($workflowStatus in $workflowStatuses.check_runs) {
+    $status = @{ name = $workflowStatus.name; state = $workflowStatus.conclusion }
+    $statuses += $status
+}
+
+Write-Host "----- Found statuses -----"
+foreach ($status in $statuses) {
+    Write-Host "$($status.name) = $($status.state)"
+}
+
+# Must succeed or skip if present
+foreach ($status in $statuses) {
+    if ($status.name -in $ignoredStatuses) {
+        continue
+    }
+
+    if (!($status.state -in @("success", "skipped"))) {
+        Write-Host "Status check has not passed or has not been skipped.`nName: $($status.name)`nCurrent status: $($status.state)"
+        exit 1
+    }
+}
+
+# Ensure required are present
+$presentStatuses = $statuses.name
+foreach ($requiredStatus in $requiredStatuses) {
+    if (!($requiredStatus -in $presentStatuses)) {
+        Write-Host "Required status check is not present.`nName: $($requiredStatus)"
+        exit 1
+    }
+}
