@@ -40,54 +40,40 @@ foreach ($status in $statuses) {
     Write-Host "$($status.name) = $($status.state)"
 }
 
-# Must succeed or skip if present
-foreach ($status in $statuses) {
-    if ($status.name -in $ignoredStatuses) {
-        continue
-    }
-
-    if (!($status.state -in @("success", "skipped"))) {
-        $message = "Status check has not passed or has not been skipped. Name: $($status.name). Current status: $($status.state)"
-        if ($reportStatus) {
-            gh api `
-                --method POST `
-                -H "Accept: application/vnd.github+json" `
-                /repos/$repo/statuses/$commit `
-                -f state="failure" `
-                -f description=$message `
-                -f context=$self
+$statusMessage = "All relevant checks passed"
+$statusState = "success"
+try {
+    # Must succeed or skip if present
+    foreach ($status in $statuses) {
+        if ($status.name -in $ignoredStatuses) {
+            continue
         }
 
-        throw $message
-    }
-}
-
-# Ensure required are present
-$presentStatuses = $statuses.name
-foreach ($requiredStatus in $requiredStatuses) {
-    if (!($requiredStatus -in $presentStatuses)) {
-        $message = "Required status check is not present. Name: $($requiredStatus)"
-        if ($reportStatus) {
-            gh api `
-                --method POST `
-                -H "Accept: application/vnd.github+json" `
-                /repos/$repo/statuses/$commit `
-                -f state="failure" `
-                -f description=$message `
-                -f context=$self
+        if (!($status.state -in @("success", "skipped"))) {
+            throw "Status check has not passed or has not been skipped. Name: $($status.name). Current status: $($status.state)"
         }
+    }
 
-        throw $message
+    # Ensure required are present
+    $presentStatuses = $statuses.name
+    foreach ($requiredStatus in $requiredStatuses) {
+        if (!($requiredStatus -in $presentStatuses)) {
+            throw "Required status check is not present. Name: $($requiredStatus)"
+        }
     }
 }
+catch {
+    $statusMessage = $_.Exception.Message
+    $statusState = "failure"
+}
 
-$message = "All checks passed"
 if ($reportStatus) {
+    Write-Host "Reporting status. State: $statusState. Message: $statusMessage"
     gh api `
         --method POST `
         -H "Accept: application/vnd.github+json" `
         /repos/$repo/statuses/$commit `
-        -f state="success" `
-        -f description=$message `
+        -f state=$statusState `
+        -f description=$statusMessage `
         -f context=$self
 }

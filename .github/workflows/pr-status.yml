@@ -8,6 +8,10 @@ on:
       - completed
   status:
 
+concurrency:
+  group: "${{ github.workflow }}-${{ github.event.workflow_run.head_sha }}"
+  cancel-in-progress: false
+
 jobs:
   check:
     name: PR Status Check
