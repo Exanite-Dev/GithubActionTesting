@@ -1,0 +1,43 @@
+name: PR Merge Gatekeeper
+
+on:
+  pull_request:
+
+jobs:
+  check:
+    name: PR Merge Gatekeeper
+    runs-on: ubuntu-24.04
+
+    steps:
+
+      - name: Check statuses
+        shell: pwsh
+        run: |
+          # See https://cli.github.com/manual/gh_pr_checks
+          $statusesJson = gh pr checks ${{ github.event.pull_request.number }}" --json bucket,name
+          $statuses = $statusesJson | ConvertFrom-Json
+          
+          $ignoredStatuses = @(
+              "PR Merge Gatekeeper, # Should always ignore self
+          )
+          
+          # Must be in the status list
+          # This means these cannot be skipped
+          $requiredStatuses = @("Does Not Exist")
+          
+          # Must pass or skip if present
+          foreach ($entry in $entries) {
+              if (!($entry.bucket -in @("pass", "skipping"))) {
+                  WriteHost "Status check has not passed or has not been skipped. Name: $($entry.name) Current status: $($entry.bucket)"
+                  exit 1
+              }
+          }
+          
+          # Ensure required are present
+          $presentStatuses = $statuses.name
+          foreach ($requiredStatus in $requiredStatuses) {
+              if (!($requiredStatus -in $presentStatuses)) {
+                  WriteHost "Required status check is not present. Name: $($requiredStatus)"
+                  exit 1
+              }
+          }
