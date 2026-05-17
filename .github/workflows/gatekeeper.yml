@@ -10,6 +10,9 @@ jobs:
 
     steps:
 
+      - name: Checkout repo
+        uses: actions/checkout@v6.0.2
+
       - name: Check statuses
         shell: pwsh
         env:
