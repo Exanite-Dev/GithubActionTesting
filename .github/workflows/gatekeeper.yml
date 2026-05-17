@@ -1,6 +1,9 @@
 name: PR Merge Gatekeeper
 
 on:
+  check_run:
+    types:
+      - completed
   status:
 
 jobs:
