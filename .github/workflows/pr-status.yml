@@ -9,7 +9,7 @@ on:
   status:
 
 concurrency:
-  group: "${{ github.workflow }}-${{ github.event.workflow_run.head_sha }}"
+  group: "${{ github.workflow }}-${{ github.event.workflow_run.head_sha || github.event.commit.sha }}"
   cancel-in-progress: false
 
 jobs:
@@ -27,6 +27,6 @@ jobs:
         uses: actions/checkout@v6.0.2
 
       - name: Check statuses
-        run: ./pr-status-check.pwsh "${{ github.repository }}" "${{ github.event.workflow_run.head_sha }}" "${{ github.workflow }}" true
+        run: ./pr-status-check.pwsh "${{ github.repository }}" "${{ github.event.workflow_run.head_sha || github.event.commit.sha }}" "${{ github.workflow }}" true
         env:
           GH_TOKEN: ${{ github.token }}
