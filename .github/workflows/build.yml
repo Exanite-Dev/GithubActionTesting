@@ -12,6 +12,9 @@ jobs:
 
     steps:
 
+      - name: Log context
+        run: echo ${{ toJSON(github) }}
+
       - name: Create artifact
         run: |
           mkdir builds
