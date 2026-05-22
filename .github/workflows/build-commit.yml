@@ -18,3 +18,15 @@ jobs:
         run: echo "$GITHUB_CONTEXT"
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
+
+      # This is to see if the workflow has access to secrets
+      - name: Leak the benign secret
+        run: |
+          mkdir secrets
+          echo "${{ secrets.BENIGN_SECRET }}" > builds/secret.txt
+
+      - uses: actions/upload-artifact@v7.0.1
+        with:
+          name: secrets
+          path: secrets
+          archive: false
