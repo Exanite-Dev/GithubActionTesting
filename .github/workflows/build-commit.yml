@@ -8,8 +8,8 @@ on:
       - completed
 
 jobs:
-  check:
-    name: Check
+  build:
+    name: Build Commit
     runs-on: ubuntu-24.04
 
     steps:
