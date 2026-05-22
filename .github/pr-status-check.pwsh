@@ -53,7 +53,7 @@ try {
         }
 
         if (!($status.state -in @("success", "skipped"))) {
-            throw "Non-passing/skipped status check: $($status.name). State: $($status.state)"
+            throw "Status check failed: $($status.name). State: $($status.state)"
         }
     }
 
