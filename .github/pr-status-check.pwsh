@@ -22,25 +22,24 @@ $requiredStatuses = @()
 # https://docs.github.com/en/rest/checks/runs
 # https://docs.github.com/en/rest/commits/statuses
 
-# Merged data
-# Two properties: name and state
+# Merged data: { name, state, type }[]
 $statuses = @()
 
 $externalStatuses = gh api repos/$repo/commits/$commit/status | ConvertFrom-Json
 foreach ($externalStatus in $externalStatuses.statuses) {
-    $status = @{ name = $externalStatus.context; state = $externalStatus.state }
+    $status = @{ name = $externalStatus.context; state = $externalStatus.state; type = "external" }
     $statuses += $status
 }
 
 $workflowStatuses = gh api repos/$repo/commits/$commit/check-runs | ConvertFrom-Json
 foreach ($workflowStatus in $workflowStatuses.check_runs) {
-    $status = @{ name = $workflowStatus.name; state = $workflowStatus.conclusion }
+    $status = @{ name = $workflowStatus.name; state = [bool]$workflowStatus.conclusion ? $workflowStatus.conclusion : $workflowStatus.status ; type = "workflow" }
     $statuses += $status
 }
 
 Write-Host "----- Found statuses -----"
 foreach ($status in $statuses) {
-    Write-Host "$($status.name) = $($status.state)"
+    Write-Host "$($status.name) = $($status.state) ($($status.type))"
 }
 
 $statusMessage = "All relevant checks passed"
@@ -53,7 +52,7 @@ try {
         }
 
         if (!($status.state -in @("success", "skipped"))) {
-            throw "Non-passing/skipped status check: $($status.name). State: $($status.state)"
+            throw "Status check failed: $($status.name). State: $($status.state)"
         }
     }
 

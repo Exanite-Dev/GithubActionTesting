@@ -10,7 +10,7 @@ on:
 
 concurrency:
   group: "${{ github.workflow }}-${{ github.event.workflow_run.head_sha || github.event.commit.sha }}"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   check:

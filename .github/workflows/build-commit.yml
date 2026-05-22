@@ -1,0 +1,20 @@
+name: Build Commit
+
+on:
+  workflow_run:
+    workflows:
+      - Build
+    types:
+      - completed
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-24.04
+
+    steps:
+
+      - name: Log context
+        run: echo "$GITHUB_CONTEXT"
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
