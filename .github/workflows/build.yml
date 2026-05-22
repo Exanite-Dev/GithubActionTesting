@@ -13,7 +13,9 @@ jobs:
     steps:
 
       - name: Log context
-        run: echo ${{ toJSON(github) }}
+        run: echo "$GITHUB_CONTEXT"
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
 
       - name: Create artifact
         run: |
