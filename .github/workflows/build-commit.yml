@@ -20,6 +20,7 @@ jobs:
           GITHUB_CONTEXT: ${{ toJson(github) }}
 
       # This is to see if the workflow has access to secrets
+      # From what I understand, this workflow always has access to secrets
       - name: Leak the benign secret
         run: |
           mkdir secrets
