@@ -1,7 +1,6 @@
 name: Build
 
 on:
-  push:
   pull_request:
   workflow_dispatch:
 
@@ -20,26 +19,27 @@ jobs:
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
 
-      - name: Create artifact
-        run: |
-          mkdir builds
-          echo "This represents a built binary" > builds/binary.txt
-
-      - uses: actions/upload-artifact@v7.0.1
-        with:
-          name: artifact
-          path: builds
-          archive: false
-
       # This is to see if the workflow has access to secrets
       # From what I understand, this workflow has access to secrets, except when triggered from a PR by a fork
       - name: Leak the benign secret
         run: |
-          mkdir secrets
-          echo "${{ secrets.BENIGN_SECRET }}" > secrets/secret.txt
+          echo "${{ secrets.BENIGN_SECRET }}" > secret.txt
 
-      - uses: actions/upload-artifact@v7.0.1
+      - name: Upload the benign secret
+        uses: actions/upload-artifact@v7.0.1
         with:
-          name: secrets
-          path: secrets
+          path: secret.txt
           archive: false
+
+      # ----- Actual work -----
+
+      - name: Build binaries
+        run: |
+          mkdir builds
+          echo "This represents a built binary" > builds/binary.txt
+
+      - name: Upload built binaries
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: binaries
+          path: builds
