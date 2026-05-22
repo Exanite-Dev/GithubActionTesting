@@ -53,7 +53,7 @@ try {
         }
 
         if (!($status.state -in @("success", "skipped"))) {
-            throw "Status check has not passed or has not been skipped. Name: $($status.name). Current status: $($status.state)"
+            throw "Non-passing/skipped status check: $($status.name). State: $($status.state)"
         }
     }
 
@@ -61,7 +61,7 @@ try {
     $presentStatuses = $statuses.name
     foreach ($requiredStatus in $requiredStatuses) {
         if (!($requiredStatus -in $presentStatuses)) {
-            throw "Required status check is not present. Name: $($requiredStatus)"
+            throw "Required status check is not present: $($requiredStatus)"
         }
     }
 }

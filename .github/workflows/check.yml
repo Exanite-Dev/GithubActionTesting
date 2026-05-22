@@ -11,16 +11,19 @@ jobs:
 
     steps:
 
-      - name: Randomly fail
-        shell: pwsh
-        run: |
-          $roll = Get-Random -Minimum 0 -Maximum 100
-          $failProbability = 50
-          Write-Host "Rolled $roll"
-          Write-Host "Fail probability $failProbability"
-          
-          if ($roll -lt $failProbability) {
-             throw "Failed"
-          }
-          
-          Write-Host "Success"
+      - name: Always succeed
+        run: "true"
+
+#      - name: Randomly fail
+#        shell: pwsh
+#        run: |
+#          $roll = Get-Random -Minimum 0 -Maximum 100
+#          $failProbability = 50
+#          Write-Host "Rolled $roll"
+#          Write-Host "Fail probability $failProbability"
+#
+#          if ($roll -lt $failProbability) {
+#             throw "Failed"
+#          }
+#
+#          Write-Host "Success"
