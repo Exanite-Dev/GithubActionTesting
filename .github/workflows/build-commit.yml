@@ -23,7 +23,7 @@ jobs:
       - name: Leak the benign secret
         run: |
           mkdir secrets
-          echo "${{ secrets.BENIGN_SECRET }}" > builds/secret.txt
+          echo "${{ secrets.BENIGN_SECRET }}" > secrets/secret.txt
 
       - uses: actions/upload-artifact@v7.0.1
         with:
