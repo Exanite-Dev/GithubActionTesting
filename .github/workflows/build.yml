@@ -5,9 +5,12 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
-  check:
-    name: Check
+  build:
+    name: Build
     runs-on: ubuntu-24.04
 
     steps:
@@ -29,6 +32,7 @@ jobs:
           archive: false
 
       # This is to see if the workflow has access to secrets
+      # From what I understand, this workflow has access to secrets, except when triggered from a PR by a fork
       - name: Leak the benign secret
         run: |
           mkdir secrets
