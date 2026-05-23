@@ -20,6 +20,8 @@ jobs:
     steps:
 
       - name: Update status
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           gh api \
               --method POST \
@@ -74,6 +76,8 @@ jobs:
 
       - name: Update status
         if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           gh api \
               --method POST \
