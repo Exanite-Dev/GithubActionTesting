@@ -11,8 +11,8 @@ $reportStatus = $args[3] # Whether to report the status check to the specified c
 $workflowUrl = $args[4] # The url of the workflow
 
 $ignoredStatuses = @()
-if ($self) {
-  $ignoredStatuses += $self
+if ($workflow) {
+    $ignoredStatuses += $workflow
 }
 
 # Must be in the status list
@@ -78,6 +78,6 @@ if ($reportStatus) {
         /repos/$repo/statuses/$commit `
         -f state="$statusState" `
         -f description="$statusMessage" `
-        -f context="$self" `
+        -f context="$workflow" `
         -f target_url="$workflowUrl"
 }
