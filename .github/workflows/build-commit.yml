@@ -19,6 +19,18 @@ jobs:
 
     steps:
 
+      - name: Update status
+        run: |
+          gh api \
+              --method POST \
+              -H "Accept: application/vnd.github+json" \
+              /repos/${{ github.repository }}/statuses/${{ github.event.workflow_run.head_sha }} \
+              -f state="pending" \
+              -f context="${{ github.workflow }}" \
+              -f target_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+      # ----- Debugging -----
+
       - name: Log context
         run: echo "$GITHUB_CONTEXT"
         env:
@@ -59,3 +71,14 @@ jobs:
           git add .
           git commit -m "Update binaries for ${{ github.event.workflow_run.head_sha }}" || true
           git push origin HEAD:${{ github.event.workflow_run.head_branch }}
+
+      - name: Update status
+        if: always()
+        run: |
+          gh api \
+              --method POST \
+              -H "Accept: application/vnd.github+json" \
+              /repos/${{ github.repository }}/statuses/${{ github.event.workflow_run.head_sha }} \
+              -f state="${{ job.status }}" \
+              -f context="${{ github.workflow }}" \
+              -f target_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
