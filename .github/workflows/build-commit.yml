@@ -8,12 +8,14 @@ on:
       - completed
 
 permissions:
-  contents: read
+  contents: write
+  actions: read
 
 jobs:
   build:
     name: Build Commit
     runs-on: ubuntu-24.04
+    if: github.event.workflow_run.head_branch != null
 
     steps:
 
@@ -47,6 +49,7 @@ jobs:
         with:
           name: binaries
           run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
 
       - name: Commit and push artifacts
         run: |
@@ -54,4 +57,4 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git add .
           git commit -m "Update binaries for $(git rev-parse HEAD)"
-          git push
+          git push origin HEAD:${{ github.event.workflow_run.head_branch }}
