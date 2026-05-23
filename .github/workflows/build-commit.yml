@@ -15,7 +15,7 @@ jobs:
   build:
     name: Build Commit
     runs-on: ubuntu-24.04
-    if: github.event.workflow_run.head_branch != null
+    if: github.event.workflow_run.head_branch != null && github.event.workflow_run.conclusion == 'success'
 
     steps:
 
