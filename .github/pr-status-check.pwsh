@@ -6,8 +6,9 @@ $PSNativeCommandUseErrorActionPreference = $true
 # Config
 $repo = $args[0]
 $commit = $args[1]
-$self = $args[2] # Should be the name of the workflow to ignore
+$workflow = $args[2] # Should be the name of the workflow to ignore
 $reportStatus = $args[3] # Whether to report the status check to the specified commit
+$workflowUrl = $args[4] # The url of the workflow
 
 $ignoredStatuses = @()
 if ($self) {
@@ -75,7 +76,8 @@ if ($reportStatus) {
         --method POST `
         -H "Accept: application/vnd.github+json" `
         /repos/$repo/statuses/$commit `
-        -f state=$statusState `
-        -f description=$statusMessage `
-        -f context=$self
+        -f state="$statusState" `
+        -f description="$statusMessage" `
+        -f context="$self"
+        -f target_url="$workflowUrl"
 }
