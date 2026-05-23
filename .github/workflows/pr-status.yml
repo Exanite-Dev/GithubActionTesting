@@ -31,11 +31,6 @@ jobs:
 
       - name: Check statuses
         run: | 
-          .github/pr-status-check.pwsh \
-              "${{ github.repository }}" \
-              "${{ github.event.workflow_run.head_sha || github.event.commit.sha }}" \
-              "${{ github.workflow }}" \
-              true \
-              "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          .github/pr-status-check.pwsh "${{ github.repository }}" "${{ github.event.workflow_run.head_sha || github.event.commit.sha }}" "${{ github.workflow }}" true "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         env:
           GH_TOKEN: ${{ github.token }}
