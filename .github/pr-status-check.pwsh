@@ -78,6 +78,6 @@ if ($reportStatus) {
         /repos/$repo/statuses/$commit `
         -f state="$statusState" `
         -f description="$statusMessage" `
-        -f context="$self"
+        -f context="$self" `
         -f target_url="$workflowUrl"
 }
