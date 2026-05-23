@@ -2,6 +2,10 @@ name: Build
 
 on:
   pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
   workflow_dispatch:
 
 permissions:
@@ -11,7 +15,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-24.04
-    if: contains(github.event.pull_request.body, '/build')
+    if: contains(github.event.pull_request.body, '/build ${{ github.sha }}')
 
     steps:
 
