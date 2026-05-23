@@ -9,15 +9,30 @@ on:
 
 permissions:
   contents: write
+  statuses: write
   actions: read
 
 jobs:
   build:
     name: Build Commit
     runs-on: ubuntu-24.04
-    if: github.event.workflow_run.head_branch != null
+    if: github.event.workflow_run.head_branch != null && github.event.workflow_run.conclusion == 'success'
 
     steps:
+
+      - name: Update status
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api \
+              --method POST \
+              -H "Accept: application/vnd.github+json" \
+              /repos/${{ github.repository }}/statuses/${{ github.event.workflow_run.head_sha }} \
+              -f state="pending" \
+              -f context="${{ github.workflow }}" \
+              -f target_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+      # ----- Debugging -----
 
       - name: Log context
         run: echo "$GITHUB_CONTEXT"
@@ -59,3 +74,16 @@ jobs:
           git add .
           git commit -m "Update binaries for ${{ github.event.workflow_run.head_sha }}" || true
           git push origin HEAD:${{ github.event.workflow_run.head_branch }}
+
+      - name: Update status
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api \
+              --method POST \
+              -H "Accept: application/vnd.github+json" \
+              /repos/${{ github.repository }}/statuses/${{ github.event.workflow_run.head_sha }} \
+              -f state="${{ job.status }}" \
+              -f context="${{ github.workflow }}" \
+              -f target_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
