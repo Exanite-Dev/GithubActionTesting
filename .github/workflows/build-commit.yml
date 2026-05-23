@@ -39,7 +39,7 @@ jobs:
       # ----- Actual work -----
 
       # This can checkout untrusted code from a fork
-      - name: Checkout latest commit of source branch
+      - name: Checkout source branch
         uses: actions/checkout@v6.0.2
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
@@ -56,5 +56,5 @@ jobs:
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add .
-          git commit -m "Update binaries for $(git rev-parse HEAD)"
+          git commit -m "Update binaries for ${{ github.event.workflow_run.head_sha }}" || true
           git push origin HEAD:${{ github.event.workflow_run.head_branch }}
